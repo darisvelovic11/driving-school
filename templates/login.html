@@ -9,7 +9,7 @@
         <div class="container">
             <h1>Welcome to Driving school</h1>
         
-            <form>
+            <form action="/login" method="POST">
 
             <label for="email">Email</label>
             <input type="email"id="email" name="email" required>
@@ -17,6 +17,10 @@
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required>
 
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
+            
             <button type="submit">Login</button>
 
         </form>
