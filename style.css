@@ -131,7 +131,7 @@ button{
     border-left: 4px solid blue;
 }
 
-final-exam-status {
+.final-exam-status {
     background-color: white;
     padding: 20px;
     border-radius: 10px;
