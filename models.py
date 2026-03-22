@@ -4,11 +4,11 @@ db = SQLAlchemy()
 
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable = False)
+    email = db.Column(db.String(100), unique = True, nullable=False)
+    password = db.Column(db.String(100), nullable = False)
     instructor_id = db.Column(db.Integer, db.ForeignKey('instructor.id'))
-    lessons_done = db.Column(db.Integer, default=0)
+    lessons_done = db.Column(db.Integer, default = 0)
 
 class Instructor(db.Model):
     id = db.Column(db.Integer, primary_key=True)

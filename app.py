@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from models import db, Student, Instructor, Lesson, Grade
+import os
 
 app = Flask(__name__)
 
@@ -11,6 +12,9 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
+
+
 
 @app.route('/')
 def home():
@@ -24,20 +28,19 @@ def login():
 
         student = Student.query.filter_by(email=email, password=password).first()
         if student:
-            session['user'] = email
-            session['role'] = 'student'
-            session['user_id'] = student.id
+            session['user']=email
+            session['role']= 'student'
+            session['user_id']=student.id
             return redirect(url_for('dashboard'))
-
+        
         instructor = Instructor.query.filter_by(email=email, password=password).first()
         if instructor:
-            session['user'] = email
-            session['role'] = 'instructor'
-            session['user_id'] = instructor.id
+            session['user']=email
+            session['role']= 'instructor'
+            session['user_id']=instructor.id
             return redirect(url_for('instructor_dashboard'))
 
         return render_template('login.html', error="Invalid email or password")
-
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -48,13 +51,13 @@ def register():
         password = request.form['password']
         confirm_password = request.form['confirm-password']
 
-        if password != confirm_password:
-            return render_template('register.html', error="Passwords do not match")
-
+        if password!=confirm_password:
+            return render_template('register.html', error = "Paswords do not match")
+        
         existing_user = Student.query.filter_by(email=email).first()
         if existing_user:
             return render_template('register.html', error="Email already registered")
-
+        
         new_student = Student(
             name=name,
             email=email,
@@ -65,8 +68,9 @@ def register():
         db.session.commit()
 
         return redirect(url_for('login'))
-
     return render_template('register.html')
+    
+    
 
 @app.route('/dashboard')
 def dashboard():
