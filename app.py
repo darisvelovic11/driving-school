@@ -14,20 +14,7 @@ with app.app_context():
     db.create_all()
 
 
-users = {
-    "student@gmail.com": {
-        "password": "password123",
-        "role": "student"
-    },
-    "instructor@gmail.com": {
-        "password": "password456",
-        "role": "instructor"
-    },
-    "admin@gmail.com": {
-        "password": "admin123",
-        "role": "admin"
-    }
-}
+
 
 @app.route('/')
 def home():
@@ -39,25 +26,51 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-        if email in users and users[email]['password'] == password:
-            session['user'] = email
-            session['role'] = users[email]['role']
+        student = Student.query.filter_by(email=email, password=password).first()
+        if student:
+            session['user']=email
+            session['role']= 'student'
+            session['user_id']=student.id
+            return redirect(url_for('dashboard'))
+        
+        instructor = Instructor.query.filter_by(email=email, password=password).first()
+        if instructor:
+            session['user']=email
+            session['role']= 'instructor'
+            session['user_id']=instructor.id
+            return redirect(url_for('instructor_dashboard'))
 
-            role = session['role']
-            if role == 'student':
-                return redirect(url_for('dashboard'))
-            elif role == 'instructor':
-                return redirect(url_for('instructor_dashboard'))
-            elif role == 'admin':
-                return redirect(url_for('admin_dashboard'))
-        else:
-            return render_template('login.html', error="Invalid email or password")
-
+        return render_template('login.html', error="Invalid email or password")
     return render_template('login.html')
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
+    if request.method == 'POST':
+        name = request.form['first-name'] + ' ' + request.form['last-name']
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm-password']
+
+        if password!=confirm_password:
+            return render_template('register.html', error = "Paswords do not match")
+        
+        existing_user = Student.query.filter_by(email=email).first()
+        if existing_user:
+            return render_template('register.html', error="Email already registered")
+        
+        new_student = Student(
+            name=name,
+            email=email,
+            password=password,
+            lessons_done=0
+        )
+        db.session.add(new_student)
+        db.session.commit()
+
+        return redirect(url_for('login'))
     return render_template('register.html')
+    
+    
 
 @app.route('/dashboard')
 def dashboard():
