@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from models import db, Student, Instructor, Lesson, Grade
-import os
+from models import db, Student, Instructor, Lesson, Grade, Availability
 
 app = Flask(__name__)
 
@@ -12,9 +11,6 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
-
-
-
 
 @app.route('/')
 def home():
@@ -28,19 +24,20 @@ def login():
 
         student = Student.query.filter_by(email=email, password=password).first()
         if student:
-            session['user']=email
-            session['role']= 'student'
-            session['user_id']=student.id
+            session['user'] = email
+            session['role'] = 'student'
+            session['user_id'] = student.id
             return redirect(url_for('dashboard'))
-        
+
         instructor = Instructor.query.filter_by(email=email, password=password).first()
         if instructor:
-            session['user']=email
-            session['role']= 'instructor'
-            session['user_id']=instructor.id
+            session['user'] = email
+            session['role'] = 'instructor'
+            session['user_id'] = instructor.id
             return redirect(url_for('instructor_dashboard'))
 
         return render_template('login.html', error="Invalid email or password")
+
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -51,13 +48,13 @@ def register():
         password = request.form['password']
         confirm_password = request.form['confirm-password']
 
-        if password!=confirm_password:
-            return render_template('register.html', error = "Paswords do not match")
-        
+        if password != confirm_password:
+            return render_template('register.html', error="Passwords do not match")
+
         existing_user = Student.query.filter_by(email=email).first()
         if existing_user:
             return render_template('register.html', error="Email already registered")
-        
+
         new_student = Student(
             name=name,
             email=email,
@@ -68,9 +65,8 @@ def register():
         db.session.commit()
 
         return redirect(url_for('login'))
+
     return render_template('register.html')
-    
-    
 
 @app.route('/dashboard')
 def dashboard():
@@ -86,7 +82,8 @@ def booking():
         return redirect(url_for('login'))
     if session['role'] != 'student':
         return redirect(url_for('login'))
-    return render_template('booking.html')
+    slots = Availability.query.filter_by(is_booked=False).all()
+    return render_template('booking.html', slots=slots)
 
 @app.route('/progress')
 def progress():
@@ -116,6 +113,30 @@ def admin_dashboard():
     if session['role'] != 'admin':
         return redirect(url_for('login'))
     return render_template('admin.html')
+
+@app.route('/setup')
+def setup():
+    instructor = Instructor(
+        name='Test Instructor',
+        email='instructor@gmail.com',
+        password='password456'
+    )
+    db.session.add(instructor)
+    db.session.commit()
+    return 'Instructor created!'
+
+@app.route('/setup-slots')
+def setup_slots():
+    instructor = Instructor.query.first()
+    slots = [
+        Availability(instructor_id=instructor.id, date='Monday 24 March', time='10:00'),
+        Availability(instructor_id=instructor.id, date='Tuesday 25 March', time='14:00'),
+        Availability(instructor_id=instructor.id, date='Friday 28 March', time='12:00'),
+    ]
+    for slot in slots:
+        db.session.add(slot)
+    db.session.commit()
+    return 'Slots created!'
 
 if __name__ == '__main__':
     app.run(debug=True)
