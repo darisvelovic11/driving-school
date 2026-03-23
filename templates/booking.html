@@ -13,30 +13,21 @@
 
             <div class="booking-container">
 
-             <h2>Book a lesson</h2>
+    <h2>Book a Lesson</h2>
 
-             <div class="slot-card">
-                <p>Monday 24 March - 10:00</p>
-                <button type="button">Book</button>
-            </div>
+    {% for slot in slots %}
+    <div class="slot-card">
+        <p>{{ slot.date }} - {{ slot.time }}</p>
+        <form action="/book/{{ slot.id }}" method="POST">
+            <button type="submit">Book</button>
+        </form>
+    </div>
+    {% endfor %}
 
-            <div class="slot-card">
-                <p>Tuesday 25 March - 14:00</p>
-                <button type="button">Book</button>
-            </div>
+    {% if not slots %}
+    <div class="card">
+        <p>No available slots at the moment.</p>
+    </div>
+    {% endif %}
 
-            <div class="slot-card">
-                <p>Friday 28 March - 12:00</p>
-                <button type="button">Book</button>
-            </div>
-                    
-            <div class="card">
-                <h3>Upcoming Lesson</h3>
-                <p>Your next lesson is tomorrow at 10:00</p>
-            </div>
-        </div>
-
-    </body>
-
-
-</html>
+</div>

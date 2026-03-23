@@ -138,5 +138,25 @@ def setup_slots():
     db.session.commit()
     return 'Slots created!'
 
+@app.route('/book/<int:slot_id>', methods = ['POST'])
+def book_lesson(slot_id):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    slot = Availability.query.get(slot_id)
+
+    if slot and not slot.is_booked:
+        slot.is_booked = True
+
+        new_lesson=Lesson(
+            student_id=session['user_id'],
+            instructor_id = slot.instructor_id,
+            date = slot.date,
+            time = slot.time,
+            status='booked'
+        )
+        db.session.add(new_lesson)
+        db.session.commit()
+    return redirect(url_for('booking'))
 if __name__ == '__main__':
     app.run(debug=True)
