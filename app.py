@@ -158,5 +158,52 @@ def book_lesson(slot_id):
         db.session.add(new_lesson)
         db.session.commit()
     return redirect(url_for('booking'))
+
+
+@app.route('/instructor/grades')
+def instructor_grades():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    if session['role'] != 'instructor':
+        return redirect(url_for('login'))
+    
+    lessons = Lesson.query.filter_by(instructor_id=session['user_id']).all()
+    
+    # Separate graded and ungraded lessons
+    ungraded = []
+    graded = []
+    for lesson in lessons:
+        grade = Grade.query.filter_by(lesson_id=lesson.id).first()
+        if grade:
+            graded.append((lesson, grade))
+        else:
+            ungraded.append(lesson)
+    
+    return render_template('instructor_grades.html', ungraded=ungraded, graded=graded)
+
+@app.route('/grade/<int:lesson_id>', methods=['POST'])
+def submit_grade(lesson_id):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    lesson = Lesson.query.get(lesson_id)
+    
+    if lesson:
+        score = request.form['score']
+        comment = request.form['comment']
+        
+        new_grade = Grade(
+            student_id=lesson.student_id,
+            lesson_id=lesson.id,
+            score=score,
+            comment=comment
+        )
+        db.session.add(new_grade)
+        db.session.commit()
+    
+    return redirect(url_for('instructor_grades'))
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+

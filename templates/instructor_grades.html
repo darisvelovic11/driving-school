@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Grade Students</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body class="dashboard-page">
+
+        <nav>
+            <h1>Driving School</h1>
+            <a href="/logout">Log out</a>
+        </nav>
+
+        <div class="dashboard-container">
+
+            <h2>Grade Students</h2>
+
+            <!-- Ungraded lessons -->
+            {% if ungraded %}
+                <h3>Needs Grading</h3>
+                {% for lesson in ungraded %}
+                <div class="card">
+                    <h3>{{ lesson.date }} - {{ lesson.time }}</h3>
+                    <p>Student: {{ lesson.student.name }}</p>
+                    <form action="/grade/{{ lesson.id }}" method="POST">
+                        <label for="score">Score (1-10)</label>
+                        <input type="number" id="score" name="score" min="1" max="10" required>
+                        <label for="comment">Comment</label>
+                        <input type="text" id="comment" name="comment" required>
+                        <button type="submit">Submit Grade</button>
+                    </form>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Graded lessons -->
+            {% if graded %}
+                <h3>Already Graded</h3>
+                {% for lesson, grade in graded %}
+                <div class="card">
+                    <h3>{{ lesson.date }} - {{ lesson.time }}</h3>
+                    <p>Student: {{ lesson.student.name }}</p>
+                    <p>Score: {{ grade.score }}/10</p>
+                    <p>Comment: {{ grade.comment }}</p>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if not ungraded and not graded %}
+            <div class="card">
+                <p>No lessons to grade yet.</p>
+            </div>
+            {% endif %}
+
+        </div>
+
+    </body>
+</html>

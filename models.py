@@ -24,6 +24,9 @@ class Lesson(db.Model):
     time = db.Column(db.String(50), nullable=False)
     status = db.Column(db.String(20), default='booked')
 
+    student = db.relationship("Student", backref='lessons')
+    instructor = db.relationship("Instructor", backref='lessons')
+
 class Grade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
