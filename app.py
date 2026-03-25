@@ -47,26 +47,31 @@ def register():
         email = request.form['email']
         password = request.form['password']
         confirm_password = request.form['confirm-password']
+        instructor_id = request.form['instructor_id']
 
         if password != confirm_password:
-            return render_template('register.html', error="Passwords do not match")
+            instructors = Instructor.query.all()
+            return render_template('register.html', error="Passwords do not match", instructors = instructors)
 
         existing_user = Student.query.filter_by(email=email).first()
         if existing_user:
-            return render_template('register.html', error="Email already registered")
+            instructors = Instructor.query.all()
+            return render_template('register.html', error="Email already registered", instructors=instructors)
 
         new_student = Student(
             name=name,
             email=email,
             password=password,
-            lessons_done=0
+            lessons_done=0,
+            instructor_id=instructor_id
         )
         db.session.add(new_student)
         db.session.commit()
 
         return redirect(url_for('login'))
 
-    return render_template('register.html')
+    instructors = Instructor.query.all()
+    return render_template('register.html', instructors=instructors)
 
 @app.route('/dashboard')
 def dashboard():
@@ -151,11 +156,16 @@ def admin_dashboard():
 
 @app.route('/setup')
 def setup():
+    existing = Instructor.query.filter_by(email='instructor@gmail.com').first()
+    if existing:
+        return "Instructor already exists"
+    
     instructor = Instructor(
         name='Test Instructor',
         email='instructor@gmail.com',
         password='password456'
     )
+   
     db.session.add(instructor)
     db.session.commit()
     return 'Instructor created!'
@@ -245,6 +255,12 @@ def setup_admin():
     session['role'] = 'admin'
     session['user_id'] = 0
     return redirect(url_for('admin_dashboard'))
+
+@app.route('/db-check')
+def db_check():
+    students = Student.query.count()
+    instructors = Instructor.query.count()
+    return f'Students: {students} | Instructors: {instructors}'
 
 if __name__ == '__main__':
     app.run(debug=True)
