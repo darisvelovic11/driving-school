@@ -9,12 +9,29 @@
             <h1>Driving School</h1>
             <a href="/logout">Log out</a>
         </nav>
+
         <div class="dashboard-container">
             <h2>Welcome, Admin !</h2>
+            
             <div class="card">
-                <h3>Coming Soon</h3>
-                <p>Admin features are being built.</p>
+                <h3>👥 People</h3>
+                <p>Total Students: {{ total_students }}</p>
+                <p>Total Instructors: {{ total_instructors }}</p>
             </div>
+
+            <div class="card">
+                <h3>📚 Lessons</h3>
+                <p>Total Lessons Booked: {{ total_lessons }}</p>
+                <p>Total Grades Given: {{ total_grades}}</p>
+            </div>
+
+           <div class="card">
+                <h3>📊 Statistics</h3>
+                <p>Pass Rate: {{ pass_rate }}%</p>
+            </div>
+
+
         </div>
+
     </body>
 </html>

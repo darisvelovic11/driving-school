@@ -117,7 +117,27 @@ def admin_dashboard():
         return redirect(url_for('login'))
     if session['role'] != 'admin':
         return redirect(url_for('login'))
-    return render_template('admin.html')
+    
+    total_students = Student.query.count()
+    total_instructors = Instructor.query.count()
+    total_lessons = Lesson.query.count()
+    total_grades = Grade.query.count()
+
+    passed_students = Student.query.filter(Student.lessons_done>=30).count()
+
+    if total_students > 0:
+        pass_rate = round((passed_students/total_students)*100)
+    else:
+        pass_rate=0
+
+    
+    return render_template('admin.html',
+        total_students=total_students,
+        total_instructors=total_instructors,
+        total_lessons=total_lessons,
+        total_grades=total_grades,
+        pass_rate=pass_rate)
+
 
 @app.route('/setup')
 def setup():
@@ -207,6 +227,14 @@ def submit_grade(lesson_id):
         db.session.commit()
     
     return redirect(url_for('instructor_grades'))
+
+@app.route('/setup-admin')
+def setup_admin():
+    # We store admin in session manually
+    session['user'] = 'admin@gmail.com'
+    session['role'] = 'admin'
+    session['user_id'] = 0
+    return redirect(url_for('admin_dashboard'))
 
 if __name__ == '__main__':
     app.run(debug=True)
