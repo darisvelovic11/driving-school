@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from models import db, Student, Instructor, Lesson, Grade, Availability
+from models import db, Student, Instructor, Lesson, Grade, Availability, Cancellation
 
 app = Flask(__name__)
 
@@ -261,6 +261,47 @@ def db_check():
     students = Student.query.count()
     instructors = Instructor.query.count()
     return f'Students: {students} | Instructors: {instructors}'
+
+from datetime import datetime
+
+@app.route('/cancel/<int:lesson_id>', methods=['GET', 'POST'])
+def cancel_lesson(lesson_id):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+
+    lesson = Lesson.query.get(lesson_id)
+
+    if request.method == 'POST':
+        reason = request.form.get('reason', '')
+
+        # Cancel the lesson
+        lesson.status = 'cancelled'
+
+        # Free up the availability slot
+        slot = Availability.query.filter_by(
+            date=lesson.date,
+            time=lesson.time,
+            instructor_id=lesson.instructor_id
+        ).first()
+        if slot:
+            slot.is_booked = False
+
+        # Save cancellation reason
+        cancellation = Cancellation(
+            lesson_id=lesson.id,
+            student_id=session['user_id'],
+            reason=reason if reason else 'No reason provided',
+            cancelled_at=datetime.now().strftime('%Y-%m-%d %H:%M')
+        )
+        db.session.add(cancellation)
+        db.session.commit()
+
+        return redirect(url_for('dashboard'))
+
+    # Check if cancelling within 24 hours
+    # For now we always show the reason form
+    return render_template('cancel.html', lesson=lesson)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

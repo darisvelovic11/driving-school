@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cancel Lesson</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body class="auth-page">
+
+        <div class="container">
+            <h2>Cancel Lesson</h2>
+
+            <div class="card">
+                <p>Date: {{ lesson.date }}</p>
+                <p>Time: {{ lesson.time }}</p>
+            </div>
+
+            <form action="/cancel/{{ lesson.id }}" method="POST">
+                <label for="reason">Reason for cancellation</label>
+                <input type="text" id="reason" name="reason" required>
+                <button type="submit">Confirm Cancellation</button>
+            </form>
+
+            <a href="/dashboard">Go Back</a>
+        </div>
+
+    </body>
+</html>

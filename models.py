@@ -40,3 +40,10 @@ class Availability(db.Model):
     date = db.Column(db.String(50), nullable=False)
     time = db.Column(db.String(50), nullable=False)
     is_booked = db.Column(db.Boolean, default=False)
+
+class Cancellation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+    reason = db.Column(db.String(200), nullable=False)
+    cancelled_at = db.Column(db.String(50), nullable=False)

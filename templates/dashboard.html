@@ -21,21 +21,23 @@
                 <p>Lessons remaining: {{30 - student.lessons_done}}</p>
              </div>
 
-             <div class="card">
-                <h3>Upcoming Lesson</h3>
-                {% if upcoming_lesson %}
-                    <p>Date: {{ upcoming_lesson.date }}</p>
-                    <p>Time: {{upcoming_lesson.time }}</p>
-                {% else %}
-                    <p>No upcoming lessons. Book one now!</p>
-                {% endif %}
-            </div>
-
             <div class="card">
                 <h3>Quick Actions</h3>
                 <a href="/booking"><button type="button">Book a Lesson</button></a>
                 <a href="/progress"><button type="button">View Progress</button></a>
 
+            </div>
+
+            <div class="card">
+                <h3>Upcoming Lesson</h3>
+                {% if upcoming_lesson %}
+                    <p>Date: {{ upcoming_lesson.date }}</p>
+                    <p>Time: {{ upcoming_lesson.time }}</p>
+                    <a href="/cancel/{{ upcoming_lesson.id }}">
+                        <button type="button" class="btn-danger">Cancel Lesson</button></a>                   
+                {% else %}
+                    <p>No upcoming lessons. Book one now!</p>
+                {% endif %}
             </div>
 
 
