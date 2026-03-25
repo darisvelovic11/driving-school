@@ -13,21 +13,32 @@
 
             <div class="dashboard-container">
 
-             <h2>Welcome Daris!</h2>
+             <h2>Welcome , {{student.name }}!</h2>
 
              <div class="card">
                 <h3>Your Lessons</h3>
-                <p>Lessons completed: 5</p>
-                <p>Lessons remaining: 25</p>
-                <p>Total: 30</p>
+                <p>Lessons completed: {{ student.lessons_done}} / 30</p>
+                <p>Lessons remaining: {{30 - student.lessons_done}}</p>
              </div>
 
              <div class="card">
                 <h3>Upcoming Lesson</h3>
-                <p>Your next lesson is tomorrow at 10:00</p>
+                {% if upcoming_lesson %}
+                    <p>Date: {{ upcoming_lesson.date }}</p>
+                    <p>Time: {{upcoming_lesson.time }}</p>
+                {% else %}
+                    <p>No upcoming lessons. Book one now!</p>
+                {% endif %}
             </div>
 
-             <button type="button">Book a  lesson</button>
+            <div class="card">
+                <h3>Quick Actions</h3>
+                <a href="/booking"><button type="button">Book a Lesson</button></a>
+                <a href="/progress"><button type="button">View Progress</button></a>
+
+            </div>
+
+
         </div>  
     </body>
 

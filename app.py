@@ -74,7 +74,17 @@ def dashboard():
         return redirect(url_for('login'))
     if session['role'] != 'student':
         return redirect(url_for('login'))
-    return render_template('dashboard.html')
+    
+    student = Student.query.get(session['user_id'])
+
+    upcoming_lesson = Lesson.query.filter_by(
+        student_id=session['user_id'],
+        status="booked"
+    ).first()
+
+    return render_template('dashboard.html',
+        student=student,
+        upcoming_lesson=upcoming_lesson)
 
 @app.route('/booking')
 def booking():
