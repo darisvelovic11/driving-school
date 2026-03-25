@@ -91,7 +91,12 @@ def progress():
         return redirect(url_for('login'))
     if session['role'] != 'student':
         return redirect(url_for('login'))
-    return render_template('progress.html')
+    
+    student_id = session['user_id']
+    grades = Grade.query.filter_by(student_id=student_id).all()
+    student = Student.query.get(student_id)
+
+    return render_template('progress.html', grades=grades, student=student)
 
 @app.route('/logout')
 def logout():

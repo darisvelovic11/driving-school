@@ -2,7 +2,8 @@
 <html>
     <head>
         <title>Progress</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">    </head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
     <body class="progress-page">
 
         <nav>
@@ -14,37 +15,35 @@
 
             <h2>Your Progress</h2>
 
-            <!-- Lessons summary -->
             <div class="lesson-summary">
                 <h3>Lessons</h3>
-                <p>Completed: 10 / 30</p>
-                <p>Remaining: 20</p>
+                <p>Completed: {{ student.lessons_done }} / 30</p>
+                <p>Remaining: {{ 30 - student.lessons_done }}</p>
             </div>
 
-            <!-- Grade cards -->
             <h2>Grades</h2>
 
+            {% for grade in grades %}
             <div class="grade-card">
-                <h3>Lesson 1</h3>
-                <p>Grade: 8/10</p>
-                <p>Comment: Good start, watch your speed limit</p>
+                <h3>Lesson {{ loop.index }}</h3>
+                <p>Grade: {{ grade.score }}/10</p>
+                <p>Comment: {{ grade.comment }}</p>
             </div>
+            {% endfor %}
 
-            <div class="grade-card">
-                <h3>Lesson 2</h3>
-                <p>Grade: 9/10</p>
-                <p>Comment: Better than last time, keep it up</p>
+            {% if not grades %}
+            <div class="card">
+                <p>No grades yet.</p>
             </div>
-
-            <div class="grade-card">
-                <h3>Lesson 3</h3>
-                <p>Grade: 10/10</p>
-                <p>Comment: Excellent driving</p>
-            </div>
+            {% endif %}
 
             <div class="final-exam-status">
                 <h3>Final Exam</h3>
-                <p>You are not eligible yet. Complete all 30 lessons first.</p>
+                {% if student.lessons_done >= 30 %}
+                    <p>You are eligible for the final exam!</p>
+                {% else %}
+                    <p>You are not eligible yet. Complete all 30 lessons first.</p>
+                {% endif %}
             </div>
 
         </div>
