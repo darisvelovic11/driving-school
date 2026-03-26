@@ -2,18 +2,76 @@
 <html>
     <head>
         <title>Instructor Dashboard</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
-    <body class="'dashboard-page">
+    <body class="dashboard-page">
         <nav>
             <h1>Driving School</h1>
-            <a href="/logout">Log out</a>
-        </nav>
-        <div class="dashboard-container">
-             <h3>Grade Students</h3>
-                <p>Rate your students after each lesson.</p>
-                <a href="/instructor/grades">Go to Grades</a>
+            <div class="nav-links">
+                <a href="/instructor">Dashboard</a>
+                <a href="/instructor/grades">Grades</a>
+                <a href="/instructor/availability">Availability</a>
+                <a href="/instructor/cancellations">Cancellations</a>
+                <a href="/logout">Log out</a>
             </div>
+        </nav>
+
+        <div class="dashboard-container">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="card">
+                <h3>Grade Students</h3>
+                <p>Rate your students after each lesson.</p>
+                <a href="/instructor/grades"><button type="button">Go to Grades</button></a>
+            </div>
+
+            <div class="card">
+                <h3>My Availability</h3>
+                <p>Manage your available lesson slots.</p>
+                <a href="/instructor/availability"><button type="button">Manage Slots</button></a>
+            </div>
+
+            <div class="card">
+                <h3>Cancellations</h3>
+                <p>View lessons cancelled by your students.</p>
+                <a href="/instructor/cancellations"><button type="button">View Cancellations</button></a>
+            </div>
+
+            <div class="card">
+                <h3>My Students</h3>
+                {% if students %}
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Lessons Done</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.name }}</td>
+                                <td>{{ student.email }}</td>
+                                <td>{{ student.lessons_done }} / 30</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No students assigned yet.</p>
+                {% endif %}
+            </div>
+
         </div>
     </body>
 </html>

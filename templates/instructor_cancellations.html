@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Cancel Lesson</title>
+        <title>Cancellations</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -10,9 +10,10 @@
         <nav>
             <h1>Driving School</h1>
             <div class="nav-links">
-                <a href="/dashboard">Dashboard</a>
-                <a href="/booking">Book a Lesson</a>
-                <a href="/progress">Progress</a>
+                <a href="/instructor">Dashboard</a>
+                <a href="/instructor/grades">Grades</a>
+                <a href="/instructor/availability">Availability</a>
+                <a href="/instructor/cancellations">Cancellations</a>
                 <a href="/logout">Log out</a>
             </div>
         </nav>
@@ -27,20 +28,23 @@
                 {% endif %}
             {% endwith %}
 
-            <a href="/dashboard" class="back-link">&#8592; Back to Dashboard</a>
-            <h2>Cancel Lesson</h2>
+            <a href="/instructor" class="back-link">&#8592; Back to Dashboard</a>
+            <h2>Cancelled Lessons</h2>
 
+            {% for cancellation in cancellations %}
             <div class="card">
-                <p>Date: {{ lesson.date }}</p>
-                <p>Time: {{ lesson.time }}</p>
+                <h3>{{ cancellation.lesson.date }} - {{ cancellation.lesson.time }}</h3>
+                <p>Student: {{ cancellation.student.name }}</p>
+                <p>Reason: {{ cancellation.reason }}</p>
+                <p>Cancelled at: {{ cancellation.cancelled_at }}</p>
             </div>
+            {% endfor %}
 
-            <form action="/cancel/{{ lesson.id }}" method="POST">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <label for="reason">Reason for cancellation</label>
-                <input type="text" id="reason" name="reason" required>
-                <button type="submit" class="btn-danger">Confirm Cancellation</button>
-            </form>
+            {% if not cancellations %}
+            <div class="card">
+                <p>No cancellations yet.</p>
+            </div>
+            {% endif %}
 
         </div>
     </body>

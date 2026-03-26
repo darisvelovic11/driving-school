@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>My Availability</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body class="dashboard-page">
+        <nav>
+            <h1>Driving School</h1>
+            <div class="nav-links">
+                <a href="/instructor">Dashboard</a>
+                <a href="/instructor/grades">Grades</a>
+                <a href="/instructor/availability">Availability</a>
+                <a href="/instructor/cancellations">Cancellations</a>
+                <a href="/logout">Log out</a>
+            </div>
+        </nav>
+
+        <div class="dashboard-container">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <a href="/instructor" class="back-link">&#8592; Back to Dashboard</a>
+            <h2>My Availability</h2>
+
+            <div class="card">
+                <h3>Add New Slot</h3>
+                <form action="/instructor/availability" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" required>
+                    <label for="time">Time</label>
+                    <input type="time" id="time" name="time" required>
+                    <button type="submit">Add Slot</button>
+                </form>
+            </div>
+
+            <h3>Current Slots</h3>
+
+            {% for slot in slots %}
+            <div class="slot-card">
+                <p>{{ slot.date }} - {{ slot.time }}
+                {% if slot.is_booked %}
+                    <span style="color: red;">Booked</span>
+                {% else %}
+                    <span style="color: green;">Available</span>
+                {% endif %}
+                </p>
+                {% if not slot.is_booked %}
+                <form action="/instructor/delete-slot/{{ slot.id }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn-danger">Delete</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            {% if not slots %}
+            <div class="card">
+                <p>No slots added yet.</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </body>
+</html>

@@ -1,31 +1,46 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Dashboard </title>
+        <title>Dashboard</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body class="dashboard-page">
-            <nav>
-                <h1>Driving School</h1>
+        <nav>
+            <h1>Driving School</h1>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/booking">Book a Lesson</a>
+                <a href="/progress">Progress</a>
                 <a href="/logout">Log out</a>
-                
-            </nav>
+            </div>
+        </nav>
 
-            <div class="dashboard-container">
+        <div class="dashboard-container">
 
-             <h2>Welcome , {{student.name }}!</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-             <div class="card">
+            <h2>Welcome, {{ student.name }}!</h2>
+
+            <div class="card">
                 <h3>Your Lessons</h3>
-                <p>Lessons completed: {{ student.lessons_done}} / 30</p>
-                <p>Lessons remaining: {{30 - student.lessons_done}}</p>
-             </div>
+                <p>Lessons completed: {{ student.lessons_done }} / 30</p>
+                <p>Lessons remaining: {{ 30 - student.lessons_done }}</p>
+            </div>
 
             <div class="card">
                 <h3>Quick Actions</h3>
-                <a href="/booking"><button type="button">Book a Lesson</button></a>
-                <a href="/progress"><button type="button">View Progress</button></a>
-
+                <div class="btn-row">
+                    <a href="/booking"><button type="button">Book a Lesson</button></a>
+                    <a href="/progress"><button type="button">View Progress</button></a>
+                </div>
             </div>
 
             <div class="card">
@@ -34,14 +49,43 @@
                     <p>Date: {{ upcoming_lesson.date }}</p>
                     <p>Time: {{ upcoming_lesson.time }}</p>
                     <a href="/cancel/{{ upcoming_lesson.id }}">
-                        <button type="button" class="btn-danger">Cancel Lesson</button></a>                   
+                        <button type="button" class="btn-danger">Cancel Lesson</button>
+                    </a>
                 {% else %}
                     <p>No upcoming lessons. Book one now!</p>
                 {% endif %}
             </div>
 
+            <div class="card">
+                <h3>Lesson History</h3>
+                {% if lesson_history %}
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lesson in lesson_history %}
+                            <tr>
+                                <td>{{ lesson.date }}</td>
+                                <td>{{ lesson.time }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ lesson.status }}">
+                                        {{ lesson.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No lessons yet.</p>
+                {% endif %}
+            </div>
 
-        </div>  
+        </div>
     </body>
-
 </html>

@@ -2,32 +2,57 @@
 <html>
     <head>
         <title>Booking</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">    </head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
     <body class="booking-page">
-            
-            <nav>
-                <h1>Driving School</h1>
+        <nav>
+            <h1>Driving School</h1>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/booking">Book a Lesson</a>
+                <a href="/progress">Progress</a>
                 <a href="/logout">Log out</a>
-            
-            </nav>
+            </div>
+        </nav>
 
-            <div class="booking-container">
+        <div class="booking-container">
 
-    <h2>Book a Lesson</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-    {% for slot in slots %}
-    <div class="slot-card">
-        <p>{{ slot.date }} - {{ slot.time }}</p>
-        <form action="/book/{{ slot.id }}" method="POST">
-            <button type="submit">Book</button>
-        </form>
-    </div>
-    {% endfor %}
+            <a href="/dashboard" class="back-link">&#8592; Back to Dashboard</a>
+            <h2>Book a Lesson</h2>
 
-    {% if not slots %}
-    <div class="card">
-        <p>No available slots at the moment.</p>
-    </div>
-    {% endif %}
+            {% if already_booked %}
+            <div class="flash flash-error">
+                You already have a lesson booked on {{ already_booked.date }} at {{ already_booked.time }}.
+                Cancel it first before booking a new one.
+            </div>
+            {% endif %}
 
-</div>
+            {% for slot in slots %}
+            <div class="slot-card">
+                <p>{{ slot.date }} - {{ slot.time }}</p>
+                <form action="/book/{{ slot.id }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" {% if already_booked %}disabled{% endif %}>Book</button>
+                </form>
+            </div>
+            {% endfor %}
+
+            {% if not slots %}
+            <div class="card">
+                <p>No available slots at the moment.</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </body>
+</html>

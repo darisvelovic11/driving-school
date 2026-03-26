@@ -2,17 +2,32 @@
 <html>
     <head>
         <title>Progress</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body class="progress-page">
-
         <nav>
             <h1>Driving School</h1>
-            <a href="/logout">Log out</a>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/booking">Book a Lesson</a>
+                <a href="/progress">Progress</a>
+                <a href="/logout">Log out</a>
+            </div>
         </nav>
 
         <div class="progress-container">
 
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <a href="/dashboard" class="back-link">&#8592; Back to Dashboard</a>
             <h2>Your Progress</h2>
 
             <div class="lesson-summary">
@@ -47,6 +62,5 @@
             </div>
 
         </div>
-
     </body>
 </html>

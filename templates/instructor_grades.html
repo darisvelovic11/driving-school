@@ -2,20 +2,35 @@
 <html>
     <head>
         <title>Grade Students</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body class="dashboard-page">
-
         <nav>
             <h1>Driving School</h1>
-            <a href="/logout">Log out</a>
+            <div class="nav-links">
+                <a href="/instructor">Dashboard</a>
+                <a href="/instructor/grades">Grades</a>
+                <a href="/instructor/availability">Availability</a>
+                <a href="/instructor/cancellations">Cancellations</a>
+                <a href="/logout">Log out</a>
+            </div>
         </nav>
 
         <div class="dashboard-container">
 
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <a href="/instructor" class="back-link">&#8592; Back to Dashboard</a>
             <h2>Grade Students</h2>
 
-            <!-- Ungraded lessons -->
             {% if ungraded %}
                 <h3>Needs Grading</h3>
                 {% for lesson in ungraded %}
@@ -23,6 +38,7 @@
                     <h3>{{ lesson.date }} - {{ lesson.time }}</h3>
                     <p>Student: {{ lesson.student.name }}</p>
                     <form action="/grade/{{ lesson.id }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <label for="score">Score (1-10)</label>
                         <input type="number" id="score" name="score" min="1" max="10" required>
                         <label for="comment">Comment</label>
@@ -33,7 +49,6 @@
                 {% endfor %}
             {% endif %}
 
-            <!-- Graded lessons -->
             {% if graded %}
                 <h3>Already Graded</h3>
                 {% for lesson, grade in graded %}
@@ -53,6 +68,5 @@
             {% endif %}
 
         </div>
-
     </body>
 </html>

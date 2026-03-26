@@ -1,3 +1,4 @@
 driving_school.db
 __pycache__/
 instance/
+.env
