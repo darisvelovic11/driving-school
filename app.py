@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from models import db, Student, Instructor, Lesson, Grade, Availability, Cancellation
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 
 app.secret_key = 'driving_school_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///driving_school.db'
@@ -22,15 +24,15 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-        student = Student.query.filter_by(email=email, password=password).first()
-        if student:
+        student = Student.query.filter_by(email=email).first()
+        if student and bcrypt.check_password_hash(student.password, password):
             session['user'] = email
             session['role'] = 'student'
             session['user_id'] = student.id
             return redirect(url_for('dashboard'))
 
-        instructor = Instructor.query.filter_by(email=email, password=password).first()
-        if instructor:
+        instructor = Instructor.query.filter_by(email=email).first()
+        if instructor and bcrypt.check_password_hash(instructor.password, password):
             session['user'] = email
             session['role'] = 'instructor'
             session['user_id'] = instructor.id
@@ -61,7 +63,7 @@ def register():
         new_student = Student(
             name=name,
             email=email,
-            password=password,
+            password=bcrypt.generate_password_hash(password).decode('utf-8'),
             lessons_done=0,
             instructor_id=instructor_id
         )
