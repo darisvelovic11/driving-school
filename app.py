@@ -254,6 +254,8 @@ def instructor_grades():
     ungraded = []
     graded = []
     for lesson in lessons:
+        if lesson.status == 'cancelled':
+            continue
         grade = Grade.query.filter_by(lesson_id=lesson.id).first()
         if grade:
             graded.append((lesson, grade))
@@ -271,6 +273,10 @@ def submit_grade(lesson_id):
     lesson = db.session.get(Lesson, lesson_id)
 
     if lesson:
+        if lesson.status == 'cancelled':
+            flash('Cannot grade a cancelled lesson.', 'error')
+            return redirect(url_for('instructor_grades'))
+
         existing_grade = Grade.query.filter_by(lesson_id=lesson.id).first()
         if existing_grade:
             flash('This lesson has already been graded.', 'error')
