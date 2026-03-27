@@ -3,8 +3,9 @@
     <head>
         <title>Progress</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <script defer src="{{ url_for('static', filename='main.js') }}"></script>
     </head>
     <body class="progress-page">
         <nav>
@@ -28,50 +29,155 @@
             {% endwith %}
 
             <a href="/dashboard" class="back-link">&#8592; Back to Dashboard</a>
-            <h2>Your Progress</h2>
 
-            <div class="lesson-summary">
-                <h3>Lessons</h3>
-                <p>Completed: {{ student.lessons_done }} / 30</p>
-                <p>Remaining: {{ 30 - student.lessons_done }}</p>
+            <!-- Hero progress card -->
+            <div class="card progress-hero-card">
+                <div class="bento-label">
+                    <span class="bento-dot dot-purple"></span>
+                    Lesson Progress
+                </div>
+                <div class="progress-hero-top">
+                    <div class="progress-hero-stat">
+                        <span class="count-up" data-target="{{ student.lessons_done }}">0</span><span class="progress-hero-denom"> / 30</span>
+                    </div>
+                    <div class="progress-hero-label">lessons completed</div>
+                </div>
+                <div class="segment-bar">
+                    {% for i in range(30) %}
+                    <div class="segment {% if i < student.lessons_done %}segment-filled{% endif %}" data-index="{{ i }}"></div>
+                    {% endfor %}
+                </div>
+                <div class="segment-bar-footer">
+                    <span>0</span>
+                    <span>{% if student.lessons_done > 0 %}{{ student.lessons_done }} done{% endif %}</span>
+                    <span>30</span>
+                </div>
             </div>
 
-            <h2>Grades</h2>
+            <!-- Grades -->
+            {% if grades %}
+            <div class="bento-label" style="padding: 0 2px; margin-bottom: -4px;">
+                <span class="bento-dot dot-blue"></span>
+                Lesson Grades
+            </div>
 
             {% for grade in grades %}
             <div class="grade-card">
-                <h3>Lesson {{ loop.index }}</h3>
-                <p>Grade: {{ grade.score }}/10</p>
-                <p>Comment: {{ grade.comment }}</p>
+                <div class="grade-card-header">
+                    <span class="grade-lesson-label">Lesson {{ loop.index }}</span>
+                    <span class="grade-score-num">{{ grade.score }}<span style="font-size:0.8em;font-weight:500;color:var(--text-muted)">/10</span></span>
+                </div>
+                <div class="grade-bar-track">
+                    <div class="grade-bar-fill" data-score="{{ grade.score }}"></div>
+                </div>
+                <p class="grade-comment-text">{{ grade.comment }}</p>
             </div>
             {% endfor %}
 
-            {% if not grades %}
+            {% else %}
             <div class="card">
-                <p>No grades yet.</p>
+                <div class="bento-label">
+                    <span class="bento-dot dot-blue"></span>
+                    Lesson Grades
+                </div>
+                <p>No grades yet — complete a lesson to see your scores here.</p>
             </div>
             {% endif %}
 
-            <div class="final-exam-status">
-                <h3>Final Exam</h3>
-                {% if student.exam_result == 'pass' %}
-                    <p class="status-badge status-completed">Result: PASSED</p>
-                {% elif student.exam_result == 'fail' %}
-                    <p class="status-badge status-cancelled">Result: FAILED</p>
-                    <p>Talk to your instructor about retaking the exam.</p>
-                {% elif student.exam_requested %}
-                    <p>Exam requested — awaiting your instructor's result.</p>
-                {% elif student.lessons_done >= 30 %}
-                    <p>You have completed all 30 lessons and are eligible for the final exam!</p>
-                    <form action="/request-exam" method="POST">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button type="submit">Request Final Exam</button>
-                    </form>
-                {% else %}
-                    <p>You are not eligible yet. Complete all 30 lessons first.</p>
-                {% endif %}
+            <!-- Final Exam -->
+            {% if student.exam_result == 'pass' %}
+            <div class="exam-card exam-card-passed">
+                <div class="exam-icon">🏆</div>
+                <div class="exam-title">Congratulations!</div>
+                <div class="exam-sub">You passed your final driving exam.</div>
+                <span class="status-badge status-completed" style="font-size:0.85rem;padding:6px 18px;">PASSED</span>
             </div>
 
+            {% elif student.exam_result == 'fail' %}
+            <div class="exam-card exam-card-failed">
+                <div class="exam-icon">💪</div>
+                <div class="exam-title">Keep Going</div>
+                <div class="exam-sub">You didn't pass this time — talk to your instructor about retaking the exam.</div>
+                <span class="status-badge status-cancelled" style="font-size:0.85rem;padding:6px 18px;">FAILED</span>
+            </div>
+
+            {% elif student.exam_requested %}
+            <div class="exam-card exam-card-pending">
+                <div class="exam-icon">⏳</div>
+                <div class="exam-title">Exam Requested</div>
+                <div class="exam-sub">Your instructor will review and submit the result shortly.</div>
+                <span class="status-badge status-booked" style="font-size:0.85rem;padding:6px 18px;">PENDING</span>
+            </div>
+
+            {% elif student.lessons_done >= 30 %}
+            <div class="exam-card exam-card-eligible">
+                <div class="exam-icon">🎯</div>
+                <div class="exam-title">You're Ready!</div>
+                <div class="exam-sub">You've completed all 30 lessons. Request your final exam when you feel confident.</div>
+                <form action="/request-exam" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="exam-cta-btn">Request Final Exam</button>
+                </form>
+            </div>
+
+            {% else %}
+            <div class="exam-card exam-card-locked">
+                <div class="exam-icon">🔒</div>
+                <div class="exam-title">Final Exam</div>
+                <div class="exam-sub">Complete all 30 lessons to unlock your final exam. <strong>{{ 30 - student.lessons_done }} lessons remaining.</strong></div>
+            </div>
+            {% endif %}
+
         </div>
+
+        <script>
+        // Count up animation
+        document.querySelectorAll('.count-up').forEach(function(el) {
+            const target = parseInt(el.dataset.target);
+            if (target === 0) return;
+            let current = 0;
+            const duration = 900;
+            const steps = 40;
+            const increment = target / steps;
+            const interval = duration / steps;
+            const timer = setInterval(function() {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                el.textContent = Math.floor(current);
+            }, interval);
+        });
+
+        // Segment bar — animate in one by one
+        document.querySelectorAll('.segment-filled').forEach(function(seg) {
+            const idx = parseInt(seg.dataset.index);
+            seg.style.opacity = '0';
+            seg.style.transform = 'scaleY(0.4)';
+            setTimeout(function() {
+                seg.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+                seg.style.opacity = '1';
+                seg.style.transform = 'scaleY(1)';
+            }, 400 + idx * 55);
+        });
+
+        // Grade bars — slide in
+        document.querySelectorAll('.grade-bar-fill').forEach(function(bar, i) {
+            const score = parseInt(bar.dataset.score);
+            const pct = (score / 10) * 100;
+            bar.style.width = '0%';
+            if (score <= 4) {
+                bar.style.background = 'linear-gradient(90deg, #dc2626, #ef4444)';
+            } else if (score <= 7) {
+                bar.style.background = 'linear-gradient(90deg, #d97706, #fbbf24)';
+            } else {
+                bar.style.background = 'linear-gradient(90deg, #059669, #34d399)';
+            }
+            setTimeout(function() {
+                bar.style.width = pct + '%';
+            }, 200 + i * 80);
+        });
+        </script>
     </body>
 </html>

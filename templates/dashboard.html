@@ -3,8 +3,9 @@
     <head>
         <title>Dashboard</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <script defer src="{{ url_for('static', filename='main.js') }}"></script>
     </head>
     <body class="dashboard-page">
         <nav>
@@ -27,66 +28,118 @@
                 {% endif %}
             {% endwith %}
 
-            <h2>Welcome, {{ student.name }}!</h2>
+            <h2>Welcome back, {{ student.name }}</h2>
 
-            <div class="card">
-                <h3>Your Lessons</h3>
-                <p>Lessons completed: {{ student.lessons_done }} / 30</p>
-                <p>Lessons remaining: {{ 30 - student.lessons_done }}</p>
-            </div>
+            <div class="bento-grid">
 
-            <div class="card">
-                <h3>Quick Actions</h3>
-                <div class="btn-row">
-                    <a href="/booking"><button type="button">Book a Lesson</button></a>
-                    <a href="/progress"><button type="button">View Progress</button></a>
-                    <a href="/my-instructor"><button type="button">My Instructor</button></a>
+                <!-- Upcoming Lesson — wide top-left -->
+                <div class="card card-upcoming">
+                    <div class="bento-label">
+                        <span class="bento-dot dot-purple"></span>
+                        Upcoming Lesson
+                    </div>
+                    {% if upcoming_lesson %}
+                        <div class="upcoming-display">
+                            <div class="upcoming-date">{{ upcoming_lesson.date }}</div>
+                            <div class="upcoming-time">{{ upcoming_lesson.time }}</div>
+                        </div>
+                        <a href="/cancel/{{ upcoming_lesson.id }}">
+                            <button type="button" class="btn-danger">Cancel Lesson</button>
+                        </a>
+                    {% else %}
+                        <div class="empty-state">
+                            <p>No upcoming lessons.</p>
+                            <a href="/booking"><button type="button">Book Now</button></a>
+                        </div>
+                    {% endif %}
                 </div>
-            </div>
 
-            <div class="card">
-                <h3>Upcoming Lesson</h3>
-                {% if upcoming_lesson %}
-                    <p>Date: {{ upcoming_lesson.date }}</p>
-                    <p>Time: {{ upcoming_lesson.time }}</p>
-                    <a href="/cancel/{{ upcoming_lesson.id }}">
-                        <button type="button" class="btn-danger">Cancel Lesson</button>
-                    </a>
-                {% else %}
-                    <p>No upcoming lessons. Book one now!</p>
-                {% endif %}
-            </div>
+                <!-- Quick Actions — tall right column -->
+                <div class="card card-actions">
+                    <div class="bento-label">
+                        <span class="bento-dot dot-blue"></span>
+                        Quick Actions
+                    </div>
+                    <div class="action-list">
+                        <a href="/booking" class="action-item">
+                            <span class="action-icon">🗓</span>
+                            <span class="action-text">Book a Lesson</span>
+                            <span class="action-arrow">›</span>
+                        </a>
+                        <a href="/progress" class="action-item">
+                            <span class="action-icon">📊</span>
+                            <span class="action-text">View Progress</span>
+                            <span class="action-arrow">›</span>
+                        </a>
+                        <a href="/my-instructor" class="action-item">
+                            <span class="action-icon">👤</span>
+                            <span class="action-text">My Instructor</span>
+                            <span class="action-arrow">›</span>
+                        </a>
+                    </div>
+                </div>
 
-            <div class="card">
-                <h3>Lesson History</h3>
-                {% if lesson_history %}
-                    <table class="history-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for lesson in lesson_history %}
-                            <tr>
-                                <td>{{ lesson.date }}</td>
-                                <td>{{ lesson.time }}</td>
-                                <td>
-                                    <span class="status-badge status-{{ lesson.status }}">
-                                        {{ lesson.status }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p>No lessons yet.</p>
-                {% endif %}
-            </div>
+                <!-- Progress — bottom left -->
+                <div class="card card-progress">
+                    <div class="bento-label">
+                        <span class="bento-dot dot-green"></span>
+                        Your Progress
+                    </div>
+                    <div class="big-stat">
+                        {{ student.lessons_done }}<span class="big-stat-sub">/30</span>
+                    </div>
+                    <div class="progress-label">
+                        <span>Lessons completed</span>
+                        <span>{{ [(student.lessons_done / 30 * 100)|int, 100]|min }}%</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        {% set pct = [(student.lessons_done / 30 * 100)|int, 100]|min %}
+                        <div class="progress-bar-fill" data-width="{{ pct }}"></div>
+                    </div>
+                    <p>{{ 30 - student.lessons_done }} lessons remaining</p>
+                </div>
 
+                <!-- Lesson History — bottom middle -->
+                <div class="card card-history">
+                    <div class="bento-label">
+                        <span class="bento-dot dot-amber"></span>
+                        Lesson History
+                    </div>
+                    {% if lesson_history %}
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lesson in lesson_history %}
+                                <tr>
+                                    <td>{{ lesson.date }}</td>
+                                    <td>{{ lesson.time }}</td>
+                                    <td>
+                                        <span class="status-badge status-{{ lesson.status }}">
+                                            {{ lesson.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No lessons yet.</p>
+                    {% endif %}
+                </div>
+
+            </div>
         </div>
+
+        <script>
+            document.querySelectorAll('.progress-bar-fill').forEach(function(el) {
+                el.style.width = el.dataset.width + '%';
+            });
+        </script>
     </body>
 </html>
