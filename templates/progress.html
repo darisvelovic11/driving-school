@@ -54,8 +54,12 @@
 
             <div class="final-exam-status">
                 <h3>Final Exam</h3>
-                {% if student.lessons_done >= 30 %}
-                    <p>You are eligible for the final exam!</p>
+                {% if student.exam_result == 'pass' %}
+                    <p class="status-badge status-completed">Result: PASSED</p>
+                {% elif student.exam_result == 'fail' %}
+                    <p class="status-badge status-cancelled">Result: FAILED</p>
+                {% elif student.lessons_done >= 30 %}
+                    <p>You are eligible for the final exam! Awaiting result.</p>
                 {% else %}
                     <p>You are not eligible yet. Complete all 30 lessons first.</p>
                 {% endif %}

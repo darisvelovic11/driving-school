@@ -81,6 +81,7 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Students</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,6 +90,12 @@
                             <td>{{ instructor.name }}</td>
                             <td>{{ instructor.email }}</td>
                             <td>{{ students | selectattr('instructor_id', 'equalto', instructor.id) | list | length }}</td>
+                            <td>
+                                <form action="/admin/delete-instructor/{{ instructor.id }}" method="POST" onsubmit="return confirm('Delete this instructor?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn-danger">Delete</button>
+                                </form>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -96,6 +103,17 @@
                 {% else %}
                     <p>No instructors registered yet.</p>
                 {% endif %}
+            </div>
+
+            <div class="card">
+                <h3>Add Instructor</h3>
+                <form action="/admin/add-instructor" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="text" name="name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email" required>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <button type="submit">Add Instructor</button>
+                </form>
             </div>
 
         </div>

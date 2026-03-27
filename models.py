@@ -9,6 +9,7 @@ class Student(db.Model):
     password = db.Column(db.String(100), nullable=False)
     instructor_id = db.Column(db.Integer, db.ForeignKey('instructor.id'))
     lessons_done = db.Column(db.Integer, default=0)
+    exam_result = db.Column(db.String(10), nullable=True)  # 'pass', 'fail', or None
 
     instructor = db.relationship('Instructor', backref='students', foreign_keys=[instructor_id])
 
