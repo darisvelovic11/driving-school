@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>My Instructor</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body class="dashboard-page">
+        <nav>
+            <h1>Driving School</h1>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/booking">Book a Lesson</a>
+                <a href="/progress">Progress</a>
+                <a href="/logout">Log out</a>
+            </div>
+        </nav>
+
+        <div class="dashboard-container">
+
+            <a href="/dashboard" class="back-link">&#8592; Back to Dashboard</a>
+            <h2>My Instructor</h2>
+
+            {% if instructor %}
+            <div class="card">
+                <h3>{{ instructor.name }}</h3>
+                <p>Email: {{ instructor.email }}</p>
+                <p>Students: {{ student_count }}</p>
+            </div>
+            {% else %}
+            <div class="card">
+                <p>No instructor assigned. Please contact the school.</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </body>
+</html>

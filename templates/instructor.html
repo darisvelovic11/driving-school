@@ -46,6 +46,39 @@
                 <a href="/instructor/cancellations"><button type="button">View Cancellations</button></a>
             </div>
 
+            {% if exam_requests %}
+            <div class="card">
+                <h3>Pending Exam Requests</h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Lessons Done</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in exam_requests %}
+                        <tr>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.lessons_done }} / 30</td>
+                            <td>
+                                <form action="/instructor/exam/{{ student.id }}" method="POST" style="display:inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <select name="result">
+                                        <option value="pass">Pass</option>
+                                        <option value="fail">Fail</option>
+                                    </select>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
             <div class="card">
                 <h3>My Students</h3>
                 {% if students %}
@@ -55,6 +88,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Lessons Done</th>
+                                <th>Exam Result</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,6 +97,24 @@
                                 <td>{{ student.name }}</td>
                                 <td>{{ student.email }}</td>
                                 <td>{{ student.lessons_done }} / 30</td>
+                                <td>
+                                    {% if student.exam_result == 'pass' %}
+                                        <span class="status-badge status-completed">PASSED</span>
+                                    {% elif student.exam_result == 'fail' %}
+                                        <span class="status-badge status-cancelled">FAILED</span>
+                                    {% elif student.lessons_done >= 30 %}
+                                        <form action="/instructor/exam/{{ student.id }}" method="POST" style="display:inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <select name="result">
+                                                <option value="pass">Pass</option>
+                                                <option value="fail">Fail</option>
+                                            </select>
+                                            <button type="submit">Submit</button>
+                                        </form>
+                                    {% else %}
+                                        <span>Not eligible</span>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
