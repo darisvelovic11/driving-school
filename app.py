@@ -159,7 +159,8 @@ def instructor_dashboard():
         return redirect(url_for('login'))
 
     students = Student.query.filter_by(instructor_id=session['user_id']).all()
-    return render_template('instructor.html', students=students)
+    exam_requests = Student.query.filter_by(instructor_id=session['user_id'], exam_requested=True, exam_result=None).all()
+    return render_template('instructor.html', students=students, exam_requests=exam_requests)
 
 
 @app.route('/admin')
@@ -194,6 +195,20 @@ def admin_dashboard():
         instructors=instructors)
 
 
+@app.route('/admin/delete-student/<int:student_id>', methods=['POST'])
+def admin_delete_student(student_id):
+    if 'user' not in session or session.get('role') != 'admin':
+        return redirect(url_for('login'))
+
+    student = db.session.get(Student, student_id)
+    if student:
+        db.session.delete(student)
+        db.session.commit()
+        flash('Student deleted.', 'success')
+
+    return redirect(url_for('admin_dashboard'))
+
+
 @app.route('/admin/add-instructor', methods=['POST'])
 def admin_add_instructor():
     if 'user' not in session or session.get('role') != 'admin':
@@ -225,6 +240,10 @@ def admin_delete_instructor(instructor_id):
 
     instructor = db.session.get(Instructor, instructor_id)
     if instructor:
+        assigned_students = Student.query.filter_by(instructor_id=instructor_id).count()
+        if assigned_students > 0:
+            flash(f'Cannot delete instructor — they still have {assigned_students} student(s) assigned. Reassign them first.', 'error')
+            return redirect(url_for('admin_dashboard'))
         db.session.delete(instructor)
         db.session.commit()
         flash('Instructor deleted.', 'success')
@@ -241,6 +260,19 @@ def my_instructor():
     instructor = db.session.get(Instructor, student.instructor_id) if student.instructor_id else None
     student_count = Student.query.filter_by(instructor_id=instructor.id).count() if instructor else 0
     return render_template('instructor_profile.html', instructor=instructor, student_count=student_count)
+
+
+@app.route('/request-exam', methods=['POST'])
+def request_exam():
+    if 'user' not in session or session.get('role') != 'student':
+        return redirect(url_for('login'))
+
+    student = db.session.get(Student, session['user_id'])
+    if student.lessons_done >= 30 and not student.exam_requested and not student.exam_result:
+        student.exam_requested = True
+        db.session.commit()
+        flash('Final exam requested! Your instructor will be in touch.', 'success')
+    return redirect(url_for('progress'))
 
 
 @app.route('/instructor/exam/<int:student_id>', methods=['POST'])
@@ -491,6 +523,18 @@ def setup_admin():
     session['role'] = 'admin'
     session['user_id'] = 0
     return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/setup-complete-student')
+def setup_complete_student():
+    if not app.debug:
+        return "Not available", 403
+    student = Student.query.first()
+    if not student:
+        return "No students found"
+    student.lessons_done = 30
+    db.session.commit()
+    return f'{student.name} now has 30 lessons done!'
 
 
 @app.route('/db-check')
